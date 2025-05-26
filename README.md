@@ -21,7 +21,6 @@ A utility script to automatically send transactions to the Oyl Corp Clock-in gam
 - [Troubleshooting](#troubleshooting)
 - [FAQ](#faq)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Overview
 
@@ -211,7 +210,3 @@ A: Your mnemonic is stored only in your local .env file and never shared. Keep t
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
