@@ -212,3 +212,7 @@ A: Your mnemonic is stored only in your local .env file and never shared. Keep t
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+---
+
+*Last updated: May 26, 2025*
