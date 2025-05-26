@@ -2,6 +2,8 @@
 
 ![Oyl Corp Logo](https://placeholder-for-oyl-corp-logo.com/logo.png)
 
+> ⚠️ **IMPORTANT DISCLAIMER**: This script is designed for Bitcoin mainnet transactions. Use with caution as it involves real BTC. Always verify transaction details and ensure you understand the process before running this script. The authors are not responsible for any loss of funds.
+
 A utility script to automatically send transactions to the Oyl Corp Clock-in game at precisely timed Bitcoin block heights.
 
 ## Table of Contents
@@ -79,7 +81,7 @@ Create a `.env` file in the project directory with the following variables:
 MNEMONIC="your twelve word mnemonic phrase goes here"
 
 # Sandshrew project ID for mainnet operations
-SANDSHREW_PROJECT_ID="REGISTER AT SANDSHREW.IO TOGET FREE API KEP"
+SANDSHREW_PROJECT_ID="REGISTER AT SANDSHREW.IO TO GET FREE API KEY"
 ```
 
 **IMPORTANT:** Never share your mnemonic phrase or commit it to version control!
