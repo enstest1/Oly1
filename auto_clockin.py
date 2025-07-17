@@ -206,7 +206,7 @@ def main():
         eta_str = format_eta(eta_minutes)
         # Notify before clock-in attempt
         send_discord_notification(
-            f"⏰ Upcoming Oyl Corp clock-in!\nWill send transaction on block: {SEND_ON_BLOCK}\nTarget clock-in block: {TARGET_BLOCK}\nEstimated time until send: {eta_str} (assuming 10 min/block)\nCurrent block: {current_height}"
+            f"⏰ Upcoming Oyl Corp clock-in #2!\nWill send transaction on block: {SEND_ON_BLOCK}\nTarget clock-in block: {TARGET_BLOCK}\nEstimated time until send: {eta_str} (assuming 10 min/block)\nCurrent block: {current_height}"
         )
         print(f"Waiting for block {SEND_ON_BLOCK}... ({blocks_remaining} blocks remaining)")
         print(f"This will take approximately {blocks_remaining * 10} minutes at normal block times")
@@ -223,16 +223,16 @@ def main():
             if current_height == SEND_ON_BLOCK:
                 print(f"Target block {SEND_ON_BLOCK} reached! Sending transaction now for confirmation in block {TARGET_BLOCK}...")
                 send_discord_notification(
-                    f"🚀 Sending Oyl Corp clock-in transaction!\nSend block: {SEND_ON_BLOCK}\nTarget block: {TARGET_BLOCK}\nTime: {datetime.datetime.utcnow().isoformat()} UTC"
+                    f"🚀 Sending Oyl Corp clock-in #2 transaction!\nSend block: {SEND_ON_BLOCK}\nTarget block: {TARGET_BLOCK}\nTime: {datetime.datetime.utcnow().isoformat()} UTC"
                 )
                 success, txid = send_transaction()
                 if success:
                     send_discord_notification(
-                        f"✅ Clock-in SUCCESS!\nBlock: {TARGET_BLOCK}\nSent at block: {SEND_ON_BLOCK}\ntxId: {txid if txid else 'N/A'}"
+                        f"✅ Clock-in #2 SUCCESS!\nBlock: {TARGET_BLOCK}\nSent at block: {SEND_ON_BLOCK}\ntxId: {txid if txid else 'N/A'}"
                     )
                 else:
                     send_discord_notification(
-                        f"❌ Clock-in FAILED!\nBlock: {TARGET_BLOCK}\nAttempted at block: {SEND_ON_BLOCK}"
+                        f"❌ Clock-in #2 FAILED!\nBlock: {TARGET_BLOCK}\nAttempted at block: {SEND_ON_BLOCK}"
                     )
                 print("Transaction sent. Preparing for next clock-in.")
                 # Auto-advance to next valid block
@@ -244,13 +244,13 @@ def main():
             if current_height > SEND_ON_BLOCK:
                 print(f"Target send block {SEND_ON_BLOCK} has passed (current: {current_height}). Exiting without sending transaction.")
                 send_discord_notification(
-                    f"❌ Missed clock-in!\nBlock: {TARGET_BLOCK}\nSend block {SEND_ON_BLOCK} already passed."
+                    f"❌ Missed clock-in #2!\nBlock: {TARGET_BLOCK}\nSend block {SEND_ON_BLOCK} already passed."
                 )
                 sys.exit(1)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "test-discord":
-        send_discord_notification("🚀 Test notification: Oyl Corp Auto Clockin Discord integration is working!")
+        send_discord_notification("🚀 Test notification: Oyl Corp Auto Clockin #2 Discord integration is working!")
         print("Test Discord notification sent. Exiting.")
         sys.exit(0)
     main()
