@@ -1,0 +1,21 @@
+name: oyl-corp-clockin
+services:
+  - name: clockin-worker
+    source_dir: /
+    github:
+      repo: your-username/your-repo-name
+      branch: main
+    run_command: python auto_clockin.py
+    environment_slug: python
+    instance_count: 1
+    instance_size_slug: basic-xxs
+envs:
+  - key: MNEMONIC
+    scope: RUN_AND_BUILD_TIME
+    value: ${MNEMONIC}
+  - key: SANDSHREW_PROJECT_ID
+    scope: RUN_AND_BUILD_TIME
+    value: ${SANDSHREW_PROJECT_ID}
+  - key: DISCORD_WEBHOOK_URL
+    scope: RUN_AND_BUILD_TIME
+    value: ${DISCORD_WEBHOOK_URL} 

@@ -1,0 +1,13 @@
+services:
+  - type: worker
+    name: oyl-corp-clockin
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python auto_clockin.py
+    envVars:
+      - key: MNEMONIC
+        sync: false
+      - key: SANDSHREW_PROJECT_ID
+        sync: false
+      - key: DISCORD_WEBHOOK_URL
+        sync: false 
