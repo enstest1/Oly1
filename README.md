@@ -213,6 +213,16 @@ A: Your mnemonic is stored only in your local .env file and never shared. Keep t
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+## Railway Deployment
+
+If deploying on Railway, set your Start Command to:
+
+```
+./start.sh
+```
+
+This will ensure the Oyl CLI is installed before your script runs.
+
 ---
 
 *Last updated: May 26, 2025*
