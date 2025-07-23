@@ -1,107 +1,79 @@
 import os
-import subprocess
-import re
 import time
-import random
-import discord
-from discord.ext import commands
+import requests
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
-TOKEN = os.getenv("DISCORD_BOT_TOKEN")
-CHANNEL_ID = int(os.getenv("DISCORD_CHANNEL_ID"))
+load_dotenv()
 
-wallets = [
-    {"mnemonic": os.getenv("MNEMONIC_1"), "sandshare": os.getenv("SANDSHARE_1")},
-    {"mnemonic": os.getenv("MNEMONIC_2"), "sandshare": os.getenv("SANDSHARE_2")},
-    {"mnemonic": os.getenv("MNEMONIC_3"), "sandshare": os.getenv("SANDSHARE_3")}
-]
+WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
-MAX_ATTEMPTS = 3
-clockin_history = {0: [], 1: [], 2: []}
+# Simulated wallet clock-in data (replace with real logic)
+WALLETS = {
+    1: {"clocked_in": 0, "streak": 0},
+    2: {"clocked_in": 0, "streak": 0},
+    3: {"clocked_in": 0, "streak": 0},
+}
 
-intents = discord.Intents.default()
-intents.messages = True
-bot = commands.Bot(command_prefix="!", intents=intents)
+BLOCK_INTERVAL = 600  # 10 min/block (in seconds)
+TARGET_BLOCK_OFFSET = 145  # Example: send on block +145
 
-def get_dynamic_fee():
-    # Dummy function, replace with API call if needed
-    return round(random.uniform(1.5, 2.5), 2)
+CURRENT_BLOCK = 906628  # Simulated value — replace with actual block fetch
 
-def get_estimated_time():
-    now = datetime.utcnow()
-    hours = random.randint(10, 14)
-    eta = now + timedelta(hours=hours)
-    return eta.strftime("%I:%M %p UTC")
-
-def send_discord_notification(message):
-    async def inner():
-        channel = bot.get_channel(CHANNEL_ID)
-        if channel:
-            await channel.send(message)
-    bot.loop.create_task(inner())
-
-def send_transaction(wallet_num):
-    fee = get_dynamic_fee()
-    cmd = f"oyl alkane execute --data 2,21568,103 -p bitcoin -feeRate {fee}"
-    
-    for i in range(MAX_ATTEMPTS):
+def send_webhook_message(message):
+    if WEBHOOK_URL:
         try:
-            print(f"Sending TX for wallet #{wallet_num + 1}, attempt {i+1}")
-            result = subprocess.run(cmd, shell=True, capture_output=True, text=True, check=True)
-            match = re.search(r'txId[\'"]?\s*[:=]\s*[\'"]?([a-fA-F0-9]{64})', result.stdout)
-            if match:
-                clockin_history[wallet_num].append(True)
-                send_discord_notification(f"Oly Wallet #{wallet_num + 1} ✅️⏰️🟧\nTX: `{match.group(1)}`")
-                return True, match.group(1)
-            else:
-                clockin_history[wallet_num].append(False)
-        except subprocess.CalledProcessError as e:
-            print(f"Error in wallet #{wallet_num + 1}, attempt {i+1}: {e.stderr}")
-            if "oyl: not found" in e.stderr:
-                send_discord_notification(f"Oly Wallet #{wallet_num + 1} ❌️⏰️\n`oyl` command not found.")
-                break
-            time.sleep(5)
-    
-    send_discord_notification(f"Oly Wallet #{wallet_num + 1} ❌️⏰️\nClock-in failed after {MAX_ATTEMPTS} attempts.")
-    clockin_history[wallet_num].append(False)
-    return False, None
+            requests.post(WEBHOOK_URL, json={"content": message})
+        except Exception as e:
+            print("❌ Failed to send webhook:", e)
 
-def get_blocks_remaining():
-    return random.randint(5, 25)  # Replace with real query if available
+def get_current_block():
+    # Replace this with actual chain query logic if available
+    return CURRENT_BLOCK
 
-def get_streak(wallet_num):
-    history = clockin_history[wallet_num]
-    current = 0
-    max_streak = 0
-    for h in history:
-        if h:
-            current += 1
-            max_streak = max(max_streak, current)
-        else:
-            current = 0
-    return len([x for x in history if x]), max_streak
+def estimate_time(blocks_left):
+    seconds = blocks_left * BLOCK_INTERVAL
+    eta = datetime.utcnow() + timedelta(seconds=seconds)
+    return eta.strftime('%Y-%m-%d %H:%M UTC')
 
-@bot.event
-async def on_ready():
-    print(f"Bot is live as {bot.user}")
-    for idx in range(len(wallets)):
-        send_transaction(idx)
+def get_next_block_info():
+    current = get_current_block()
+    send_at = current + TARGET_BLOCK_OFFSET
+    eta = estimate_time(send_at - current)
+    return send_at, eta
 
-@bot.event
-async def on_message(message):
-    if message.channel.id != CHANNEL_ID or message.author == bot.user:
-        return
+def perform_clockin(wallet_id):
+    # Replace this with actual transaction logic
+    success = True  # simulate
+    if success:
+        WALLETS[wallet_id]["clocked_in"] += 1
+        WALLETS[wallet_id]["streak"] += 1
+        send_webhook_message(f"✅ Wallet #{wallet_id} clock-in successful! ✅\nStreak: {WALLETS[wallet_id]['streak']}")
+    else:
+        WALLETS[wallet_id]["streak"] = 0
+        send_webhook_message(f"❌ Wallet #{wallet_id} clock-in FAILED!")
 
-    content = message.content.strip().lower()
+def start_clockin_loop():
+    while True:
+        current_block = get_current_block()
+        target_block, eta = get_next_block_info()
 
-    if content in ["block", "check", "⏰️"]:
-        blocks = get_blocks_remaining()
-        eta = get_estimated_time()
-        await message.channel.send(f"⏰️ ~{blocks} blocks (~est. {eta}) until next mint.")
+        send_webhook_message(
+            f"⏰ Upcoming Oyl Corp clock-in\n"
+            f"Send block: `{target_block - 1}`\n"
+            f"Target block: `{target_block}`\n"
+            f"ETA: {eta}\n"
+            f"Current block: {current_block}"
+        )
 
-    elif content in ["#1", "#2", "#3"]:
-        wallet_num = int(content[1]) - 1
-        total, streak = get_streak(wallet_num)
-        await message.channel.send(f"📊 Oly Wallet #{wallet_num + 1} — Clock-ins: `{total}` | Longest streak: `{streak}`")
+        while get_current_block() < target_block - 1:
+            time.sleep(60)  # Check every minute
 
-bot.run(TOKEN)
+        for wallet_id in WALLETS:
+            perform_clockin(wallet_id)
+
+        time.sleep(BLOCK_INTERVAL)
+
+if __name__ == "__main__":
+    send_webhook_message("🟢 Auto Clock-In Bot is running")
+    start_clockin_loop()
